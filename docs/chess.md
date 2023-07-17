@@ -215,5 +215,5 @@ To create your data pipeline using incremental loading for players as mentioned 
     )
     # Loads games for Nov 2022 to Dec 2022
     ```
-    >Maintaining the same pipeline and dataset names is crucial for preserving the [state](../../general-usage/state) of the last run, including the end date required for incremental data loading. Modifying these names can cause a ["full_refresh",](../../general-usage/pipeline#do-experiments-with-full-refresh).  For more, please refer [incremental data loading.](../../general-usage/incremental-loading)
+    >Maintaining the same pipeline and dataset names is crucial for preserving the [state](../../general-usage/state) of the last run, including the end date required for incremental data loading. Modifying these names can cause a ["full_refresh"](../../general-usage/pipeline#do-experiments-with-full-refresh).  For more, please refer [incremental data loading.](../../general-usage/incremental-loading)
     
