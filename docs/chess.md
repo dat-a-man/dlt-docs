@@ -6,19 +6,45 @@ keywords: [chess.com api, chess.com verified source, chess.com]
 
 # Chess.com
 
-:::info
-Need help deploying these sources, or figuring out how to run them in your data stack?
+:::info Need help deploying these sources, or figuring out how to run them in your data stack?
 
 [Join our slack community](https://dlthub-community.slack.com/join/shared_invite/zt-1slox199h-HAE7EQoXmstkP_bTqal65g) or [book a call](https://calendar.app.google/kiLhuMsWKpZUpfho6) with our support engineer Adrian.
 :::
 
+Chess.com is an online platform that offers services for chess enthusiasts. It includes online chess games, tournaments, lessons, and more.
 
-Just to check the editor. 
-This verified source can be used to load player data from the [Chess.com API](https://www.chess.com/news/view/published-data-api) into a [destination](../destinations) of your choice.
+Resources that can be loaded using this verified source are:
+| Name             | Description                                                                                     |
+|------------------|-------------------------------------------------------------------------------------------------|
+| players_profiles | retrives player profiles for a list of player usernames                                         |
+|players_archives  | retrives url to game archives for specified players                                             |
+|players_games     | retrives players games that happened between start_month and end_month                          |
 
-## Initialize the pipeline with Chess.com source
 
-Initialize the pipeline with the following command:
+## Setup Guide
+
+### Grab credentials
+Chess.com API is a public API that does not require authentication or the inclusion of secrets in `secrets.toml`.
+
+### Initialize the verified source
+
+To get started with your data pipeline, follow these steps:
+1. Enter the following command:
+   ```bash
+   dlt init chess duckdb
+   ```
+   [This command](../../reference/command-line-interface) will initialize
+   [the pipeline example](https://github.com/dlt-hub/verified-sources/blob/master/sources/asana_dlt_pipeline.py) with
+   Chess.com as the [source](../../general-usage/source) and [duckdb](../destinations/duckdb.md) as
+   the [destination](../destinations).
+
+2. If you'd like to use a different destination, simply replace `duckdb` with the
+   name of your preferred [destination](../destinations).
+
+3. After running this command, a new directory will be created with the necessary files and
+   configuration settings to get started.
+
+For more information, read the [Walkthrough: Add a verified source.](../../walkthroughs/add-a-verified-source)
 ```
 dlt init chess duckdb
 ```
