@@ -94,7 +94,7 @@ def source(
 `players`: This is a list of player usernames for which you want to fetch data.
 `start_month` and `end_month`: These optional parameters specify the time period for which you want to fetch game data. (In  "YYYY/MM" format).
 
-The above function is a dlt.source function for the Chess.com API named "chess", which returns a sequence of DltResource objects. That we'll discuss subsequently. 
+The above function is a dlt.source function for the Chess.com API named "chess", which returns a sequence of DltResource objects. That we'll discuss subsequently as resources. 
 
 ### Resource `players_profiles`
 
@@ -124,20 +124,56 @@ def players_archives(players: List[str]) -> Iterator[List[TDataItem]]:
         data = get_path_with_retry(f"player/{username}/games/archives")
         yield data.get("archives", [])
 ```
+
 `players`: is a list of player usernames for which you want to fetch archives.
 
 `selected=False`: parameter means that this resource is not selected by default when the pipeline runs.
 
-The `for` loop iterates over a list of players and fetches their archives using an API request. It uses the `get_path_with_retry` function. The loop yields the list of archives or an empty list if there are none.
+ The `get_path_with_retry` function fetches their archives using an API request within a `for` loop iterating over a list of players. The loop yields the list of archives or an empty list if there are none.
 
+### Resource `players_games`
 
+```python
+@dlt.resource(write_disposition="append")
+def players_games(
+    players: List[str], start_month: str = None, end_month: str = None
+) -> Iterator[Callable[[], List[TDataItem]]]:
 
+ # Yields `players` games that happened between `start_month` and `end_month`.
+```
+`players`: is a list of player usernames for which you want to fetch games.
 
+The `players_games` function gets chess games for a group of players during a set time period. Provides player usernames and specify start/end month. It checks for valid archives within the time range and creates a callable URL for the games. The `get_path_with_retry` function fetches their archives using an API request with a `for` loop iterating over a list of players. The loop yields the list of archives or an empty list if there are none. 
 
+### Resource `players_online_status`
 
+```python
+@dlt.resource(write_disposition="append")
+def players_online_status(players: List[str]) -> Iterator[TDataItem]:
 
+    for player in players:
+        status = get_url_with_retry(
+            "%suser/popup/%s" % (UNOFFICIAL_CHESS_API_URL, player)
+        )
+        yield {
+            "username": player,
+            "onlineStatus": status["onlineStatus"],
+            "lastLoginDate": status["lastLoginDate"],
+            "check_time": pendulum.now(),  # dlt can deal with native python dates
+        }
+```
 
+`players`: is a list of player usernames for which you want to fetch online status.
 
+The `players_online_status` function to check the online status of multiple chess players. It retrieves their username, status, last login date, and check time using the Chess.com API, without altering any existing data.
+
+## Customization
+### Create your own pipeline
+
+If you wish to create your own pipelines, you can leverage source and resource methods from this verified source.
+
+To create your data pipeline using single loading for “workspaces” and “projects” endpoints, follow
+these steps:
 
 
 
