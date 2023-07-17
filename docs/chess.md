@@ -14,11 +14,11 @@ keywords: [chess.com api, chess.com verified source, chess.com]
 Chess.com is an online platform that offers services for chess enthusiasts. It includes online chess games, tournaments, lessons, and more.
 
 Resources that can be loaded using this verified source are:
-| Name              | Description                                                                                      |
-|-------------------|--------------------------------------------------------------------------------------------------|
-| players_profiles  | retrives player profiles for a list of player usernames                                          |
-| players_archives  | retrives url to game archives for specified players                                              |
-| players_games     | retrives players games that happened between start_month and end_month                           |
+| Name              | Description                                                              |
+|-------------------|--------------------------------------------------------------------------|
+| players_profiles  | retrives player profiles for a list of player usernames                  |
+| players_archives  | retrives url to game archives for specified players                      |
+| players_games     | retrives players games that happened between start_month and end_month   |
 
 
 ## Setup Guide
