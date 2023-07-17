@@ -172,38 +172,53 @@ The `players_online_status` function to check the online status of multiple ches
 
 If you wish to create your own pipelines, you can leverage source and resource methods from this verified source.
 
-To create your data pipeline using single loading for “workspaces” and “projects” endpoints, follow
-these steps:
+To create your data pipeline using incremental loading for players as mentioned below and load data  follow these steps:
 
-
-
-
-
-
-
-
-
-## Customize parameters
-
-Without any modifications, the chess pipeline will load data for a default list of players over a default period of time. You can change these values in the `chess_pipeline.py` script.
-
-For example, if you wish to load player games for a specific set of players, add the player list to the function `load_player_games_example` as below.
-```python
-def load_players_games_example(start_month: str, end_month: str):
-
-    pipeline = dlt.pipeline(pipeline_name="chess_pipeline", destination='duckdb', dataset_name="chess_players_games_data")
-
-    data = chess(
-        [], # Specify your list of players here
-        start_month=start_month,
-        end_month=end_month
+1. Configure the pipeline by specifying the pipeline name, destination, and dataset as follows:
+    ```python
+    pipeline = dlt.pipeline(
+        pipeline_name="chess_pipeline", # Use a custom name if desired
+        destination="duckdb", # Choose the appropriate destination (e.g., duckdb, redshift, post) 
+        dataset_name="chess_players_games_data", # Use a custom name if desired
     )
+    ```
+    To read more about pipeline configuration, please refer to our [documentation](../../general-usage/pipeline).
+    
+2.  To load the data from all the resources , you can utilize the `source` method as follows:
+    ```python
+    data = source(
+        ["magnuscarlsen", "vincentkeymer", "dommarajugukesh", "rpragchess"],
+        start_month="2022/11"",
+        end_month="2022/11",
+    )
+    # Loads games for Nov 2022
+    ```
+    
+3. Use the method `pipeline.run()` to execute the pipeline.
 
-    info = pipeline.run(data.with_resources("players_games", "players_profiles"))
+    ```python
+    info = pipeline.run(data)
+    # print the information on data that was loaded
     print(info)
-```
-To specify the time period, pass the starting and ending months as parameters when calling the function in the `__main__` block:
-```python
-if __name__ == "__main__" :
-    load_players_games_example("2022/11", "2022/12") # Replace the strings "2022/11" and "2022/12" with different months in the "YYYY/MM" format
-```
+    ```
+    
+4. To load data from specific resources like "players_games" and "player_profiles", modify the above code as:
+
+      ```python
+      info = pipeline.run(data.with_resources("players_games", "players_profiles"))
+    # print the information on data that was loaded
+    print(info)
+    ```
+    
+5. To load the data incrementally, modify the `source` method as follows and re-run the pipeline.
+
+    ```python
+    data = source(
+        ["magnuscarlsen", "vincentkeymer", "dommarajugukesh", "rpragchess"],
+        start_month="2022/11"",
+        end_month="2022/12",
+    )
+    # Loads games for Nov 2022 to Dec 2022
+    ```
+    >Maintaining the same pipeline and dataset names is crucial for preserving the [state](../../general-usage/state) of the last run, including the end date required for incremental data loading. Modifying these names can cause a ["full_refresh",](../../general-usage/pipeline#do-experiments-with-full-refresh).  For more, please refer [incremental data loading.](../../general-usage/incremental-loading)
+    
