@@ -17,8 +17,8 @@ Resources that can be loaded using this verified source are:
 | Name              | Description                                                                                      |
 |-------------------|--------------------------------------------------------------------------------------------------|
 | players_profiles  | retrives player profiles for a list of player usernames                                          |
-| players_archives  | retrives url to game archives for specified players                                             |
-| players_games     | retrives players games that happened between start_month and end_month                          |
+| players_archives  | retrives url to game archives for specified players                                              |
+| players_games     | retrives players games that happened between start_month and end_month                           |
 
 
 ## Setup Guide
