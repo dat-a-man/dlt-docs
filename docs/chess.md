@@ -24,7 +24,7 @@ Resources that can be loaded using this verified source are:
 ## Setup Guide
 
 ### Grab credentials
-Chess.com API is a public API that does not require authentication or the inclusion of secrets in `secrets.toml`.
+Chess.com API is a public API that does not require authentication or including secrets in secrets.toml.
 
 ### Initialize the verified source
 
@@ -45,31 +45,107 @@ To get started with your data pipeline, follow these steps:
    configuration settings to get started.
 
 For more information, read the [Walkthrough: Add a verified source.](../../walkthroughs/add-a-verified-source)
-```
-dlt init chess duckdb
-```
-Here, we chose duckdb as the destination. To choose a different destination, replace `duckdb` with your choice of destination.
 
-## Add credentials
+### Add credentials
 
-Before running the pipeline you may need to add credentials in the `.dlt/secrets.toml` file for your chosen destination. For instructions on how to do this, follow the steps detailed under the desired destination in the [destinations](../destinations/) page.
+1. To add credentials to your destination, follow the instructions in the [destination documentation](../../dlt-ecosystem/destinations). This will ensure that your data is properly routed to its final destination.
 
-Chess source does not require credentials to run.
+For more information, read the [General Usage: Credentials.](../../general-usage/credentials)
 
 ## Run the pipeline
 
-1. Install the necessary dependencies by running the following command:
+1. Before running the pipeline, ensure that you have installed all the necessary dependencies by
+   running the command:
+   ```bash
+   pip install -r requirements.txt
+   ```
+1. You're now ready to run the pipeline! To get started, run the following command:
+   ```bash
+   python3 chess_pipeline.py
+   ```
+1. Once the pipeline has finished running, you can verify that everything loaded correctly by using
+   the following command:
+   ```bash
+   dlt pipeline <pipeline_name> show
+   ```
+   For example, the `pipeline_name` for the above pipeline example is `chess_pipeline`, you may also use any
+   custom name instead.
+
+For more information, read the [Walkthrough: Run a pipeline.](../../walkthroughs/run-a-pipeline)
+
+## Sources and resources
+
+`dlt` works on the principle of [sources](../../general-usage/source) and [resources](../../general-usage/resource).
+
+### Source `source`
+
+```python
+dlt.source(name="chess")
+def source(
+    players: List[str], start_month: str = None, end_month: str = None
+) -> Sequence[DltResource]: 
+   return (
+         players_profiles(players),
+         players_archives(players),
+         players_games(players, start_month=start_month, end_month=end_month),
+         players_online_status(players),
+         )
 ```
-pip install -r requirements.txt
+`players`: This is a list of player usernames for which you want to fetch data.
+`start_month` and `end_month`: These optional parameters specify the time period for which you want to fetch game data. (In  "YYYY/MM" format).
+
+The above function is a dlt.source function for the Chess.com API named "chess", which returns a sequence of DltResource objects. That we'll discuss subsequently. 
+
+### Resource `players_profiles`
+
+```python
+@dlt.resource(write_disposition="replace")
+def players_profiles(players: List[str]) -> Iterator[TDataItem]:
+    
+    @dlt.defer
+      def _get_profile(username: str) -> TDataItem:
+          return get_path_with_retry(f"player/{username}")
+
+       for username in players:
+         yield _get_profile(username)
 ```
-2. Now the pipeline can be run by using the command:
+
+ `players`: is a list of player usernames for which you want to fetch profile data.
+ 
+ The `_get_profile` function fetches profile data for a single player using an API request. The `get_path_with_retry` function handles errors and makes the request. The `for` loop iterates through a list of players, yielding their profile data.
+
+### Resource `players_archives`
+
+```python
+@dlt.resource(write_disposition="replace", selected=False)
+def players_archives(players: List[str]) -> Iterator[List[TDataItem]]:
+    
+     for username in players:
+        data = get_path_with_retry(f"player/{username}/games/archives")
+        yield data.get("archives", [])
 ```
-python3 chess_pipeline.py
-```
-3. To make sure that everything is loaded as expected, use the command:
-```
-dlt pipeline chess_pipeline show
-```
+`players`: is a list of player usernames for which you want to fetch archives.
+
+`selected=False`: parameter means that this resource is not selected by default when the pipeline runs.
+
+The `for` loop iterates over a list of players and fetches their archives using an API request. It uses the `get_path_with_retry` function. The loop yields the list of archives or an empty list if there are none.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Customize parameters
 
